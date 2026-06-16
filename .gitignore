@@ -1,0 +1,2 @@
+# Local Claude Code session/permission state (not part of the plugin)
+.claude/settings.local.json
