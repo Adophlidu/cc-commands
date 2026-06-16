@@ -52,13 +52,40 @@ Check whether `<target>/.claude/d/manifest.json` exists.
 ## Step 2 — DETECT NEW vs EXISTING
 
 List the target directory's contents. If the directory is empty, or contains **only** trivial files
-(`.git`, `README*`, `LICENSE*`, `.gitignore` — in any combination), treat it as a NEW project:
+(`.git`, `README*`, `LICENSE*`, `.gitignore` — in any combination), treat it as a NEW project and run
+the **new-project scaffolding flow** below. Otherwise it is an EXISTING project → run Steps 3–14 below.
 
-- Print exactly →
-  `new-project scaffolding (better-t-stack) lands in a later plan.`
-  then **STOP**.
+### NEW project → scaffold, then fall through
 
-Otherwise it is an EXISTING project → run Steps 3–14 below.
+When the directory is NEW, scaffold a runnable codebase with **better-t-stack** before running the
+analysis pipeline. Do the following in order:
+
+1. **Gather the requirement (main-agent-driven).** Ask the user to describe, in natural language, the
+   product they want to build — what it does, who uses it, and any must-have capabilities (accounts,
+   database, realtime, mobile, API-only, etc.). Drive this as a normal main-agent conversation; do not
+   guess silently.
+2. **Load the scaffolding reference and confirm the live flag set.** READ
+   `${CLAUDE_PLUGIN_ROOT}/reference/better-t-stack.md` and follow it exactly (flag taxonomy,
+   requirement→selection mapping, confirmation discipline, post-scaffold hand-off). Then confirm the
+   **current** flag set by running `npx create-better-t-stack@latest --help` — if any flag name or
+   accepted value differs from the reference, trust `--help`.
+3. **Infer the selection and construct the command.** From the user's requirement, infer a complete
+   better-t-stack selection using the reference's mapping table (the user should not have to name
+   flags). Construct the non-interactive command:
+   `npx create-better-t-stack@latest . --yes <flags>` (scaffold into the current directory; use
+   `--no-git` so this command owns the initial commit).
+4. **⏸ CONFIRM THE SCAFFOLD (REQUIRED HUMAN STOP).** Present the full constructed command together with
+   a **per-choice rationale** (one line explaining each non-default flag). Ask for exactly **one**
+   confirmation, and allow the user to edit any choice in free text ("use sqlite", "switch to bun").
+   Reconstruct the command from any edits. **STOP and wait for the user — do not run the scaffold until
+   they confirm.** Require only one round; do not loop.
+5. **Run the scaffold.** Execute the confirmed command exactly as constructed, streaming output. If it
+   exits non-zero, report the error and **STOP** — do not proceed to later steps.
+6. **Commit a clean baseline.** Create the initial commit so the pipeline has a stable HEAD to compare
+   against: `git init` (use `git init -b main` if the directory is not already a repo) if needed, then
+   `git add -A && git commit -m "chore: scaffold project with create-better-t-stack"`. Do not push.
+7. **Fall through into the existing-project pipeline.** With the scaffold committed, treat the freshly
+   scaffolded code as an existing project and **continue into Steps 3–14 below — do NOT stop.**
 
 ## Step 3 — ANALYZE ARCHITECTURE
 
