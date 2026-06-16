@@ -72,8 +72,8 @@ configuration, AUTHOR the missing config files as that reference instructs.
 ## Step 5 — EXTRACT & VERIFY COMMANDS
 
 READ `${CLAUDE_PLUGIN_ROOT}/reference/command-extraction.md` and follow it exactly.
-Resolve concrete, working command strings for the **qualityGate** (lint/format/typecheck/build)
-and the **testGate**. You MUST actually RUN each candidate command once to confirm it works;
+Resolve concrete, working command strings for the **qualityGate** (lint/format/typecheck)
+and the **testGate** (test/build). You MUST actually RUN each candidate command once to confirm it works;
 record the exact command strings that succeed. Do not invent commands you have not run.
 
 ## Step 6 — DETECT ROLES
