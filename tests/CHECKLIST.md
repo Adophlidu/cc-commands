@@ -10,3 +10,5 @@
 - [ ] green-baseline self-test ran the gate commands and reported pass
 - [ ] .claude/commands/d/task.md was generated, starts with valid `---` frontmatter, and contains no remaining {{SLOTS}}
 - [ ] the generated task.md references reading .claude/d/manifest.json and an absolute path to the plugin's reference/reflow.md (not a bare ${CLAUDE_PLUGIN_ROOT})
+- [ ] .claude/commands/d/fix.md was generated, starts with valid `---` frontmatter, and contains no remaining {{SLOTS}}
+- [ ] the generated fix.md references reading .claude/d/manifest.json and an absolute path to the plugin's reference/reflow.md (not a bare ${CLAUDE_PLUGIN_ROOT})
