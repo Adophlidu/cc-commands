@@ -117,6 +117,11 @@ For **each** role in the (now user-confirmed) `roles[]`:
   real exemplar file paths, resolved gate commands, stack details, etc.
 - WRITE the filled result to `<target>/.claude/agents/<role>.md`.
 
+**Absent-evidence slots:** some slots reference real exemplars that a skeletal project may not have yet
+(e.g. `{{TEST_EXEMPLAR}}`, `{{DATA_EXEMPLAR}}`, `{{SCHEMA_EXEMPLAR}}` when there are no tests / no data layer / no schema).
+When the evidence genuinely does not exist, fill the slot with the canonical fallback
+`(none yet — establish the pattern when first added)` rather than inventing a fake path.
+
 **Hard requirement:** no `{{SLOT}}` placeholder may remain in any generated agent file.
 After writing, grep the generated files for `{{` and fix any that remain before continuing.
 

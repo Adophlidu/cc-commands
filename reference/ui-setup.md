@@ -112,7 +112,7 @@ prompt from the main agent.
 ```jsonc
 {
   "uiBaseline": {
-    "mode": "ai",
+    "mode": "design",
     "designSource": "docs/design.md",
     "tool": "<playwright | backstopjs>"   // see Step 3
   }
@@ -150,7 +150,7 @@ workflows as a **visual gate**:
 
 | Key | Branch A value | Branch B value |
 |---|---|---|
-| `uiBaseline.mode` | `"design"` | `"ai"` |
+| `uiBaseline.mode` | `"design"` | `"design"` (source is the local `docs/design.md`) |
 | `uiBaseline.designSource` | Figma URL / `"stitch"` / other | `"docs/design.md"` |
 | `uiBaseline.tool` | `"playwright"` or `"backstopjs"` | same |
 

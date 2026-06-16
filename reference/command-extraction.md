@@ -109,6 +109,7 @@ pnpm run build     # expect exit 0
 - Run against the **current HEAD** without any uncommitted changes. The goal is to confirm the clean-slate baseline passes, not to fix existing failures.
 - A command that exits 0 → record the full command string in the manifest field.
 - A command that exits non-zero or does not exist → treat as a **broken gate** (see Step 5).
+- **Stub-gate detection (false-assurance guard):** a script that exits 0 without actually invoking a real tool (e.g. `"lint": "echo ok"`, an empty script, or one that ignores its config) is a **fake gate**. Inspect each resolved script's text: if it does not invoke the expected tool (eslint/biome/prettier/tsc/vitest/etc.), still record the command but **flag it in the calibration summary** as "gate is a stub — not enforcing real checks". Do not let an authored lint/format config imply the gate is real when the gate script never runs that tool.
 - If a test run would be slow (e.g. `cargo test` on a large project), add a `--no-run` or `--list` flag only if the test framework supports it without affecting gate validity. Otherwise run it fully — a slow gate is better than a wrong one.
 - For `qualityGate.format`: run the formatter in **check mode** (read-only), not in write mode, so it exits non-zero on unformatted files without modifying them. Common flags: `--check` (prettier, ruff), `--check` (black), `-l` (gofmt).
 
