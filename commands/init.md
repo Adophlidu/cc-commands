@@ -58,7 +58,7 @@ List the target directory's contents. If the directory is empty, or contains **o
   `new-project scaffolding (better-t-stack) lands in a later plan.`
   then **STOP**.
 
-Otherwise it is an EXISTING project → run Steps 3–12 below.
+Otherwise it is an EXISTING project → run Steps 3–13 below.
 
 ## Step 3 — ANALYZE ARCHITECTURE
 
@@ -129,7 +129,30 @@ After writing, grep the generated files for `{{` and fix any that remain before 
 
 ---
 
-## 🟢 Step 10 — GREEN-BASELINE SELF-TEST (REQUIRED GATE)
+## Step 10 — GENERATE THE `/d:task` COMMAND
+
+Generate the project-local `/d:task` command from the bundled template so the project can iterate
+requirements after init.
+
+- READ `${CLAUDE_PLUGIN_ROOT}/reference/command-templates/task.template.md`.
+- Fill **EVERY** `{{SLOT}}` from the extracted/confirmed data — at minimum `{{PROJECT_NAME}}` (the
+  target project's name), plus any other `{{SLOT}}` the template contains.
+- Replace the literal token `${CLAUDE_PLUGIN_ROOT}/reference/reflow.md` that appears in the template
+  body with the **ABSOLUTE resolved path** to this plugin's own `reference/reflow.md` — i.e. expand
+  `${CLAUDE_PLUGIN_ROOT}` to its actual value at generation time (e.g.
+  `<plugin-root>/reference/reflow.md`). The generated command lives in the **target project** and must
+  NOT depend on `${CLAUDE_PLUGIN_ROOT}` being set in the user's future sessions, so this token must be
+  fully expanded, not copied verbatim.
+- WRITE the filled result to `<target>/.claude/commands/d/task.md`. The `d/` subdirectory is
+  **REQUIRED** so the command is invoked as `/d:task`.
+
+**Hard requirement:** no `{{SLOT}}` placeholder may remain in the output, and no unexpanded
+`${CLAUDE_PLUGIN_ROOT}` may remain. After writing, grep `<target>/.claude/commands/d/task.md` for
+`{{` and `${CLAUDE_PLUGIN_ROOT}` and fix any that remain before continuing.
+
+---
+
+## 🟢 Step 11 — GREEN-BASELINE SELF-TEST (REQUIRED GATE)
 
 Run the resolved **qualityGate** and **testGate** commands (Step 5) against the **current HEAD**.
 
@@ -142,7 +165,7 @@ Capture the green-baseline result for the manifest and summary.
 
 ---
 
-## Step 11 — WRITE MANIFEST
+## Step 12 — WRITE MANIFEST
 
 READ `${CLAUDE_PLUGIN_ROOT}/reference/manifest.md` and follow its schema exactly.
 WRITE `<target>/.claude/d/manifest.json`, filling **all** fields:
@@ -154,13 +177,14 @@ WRITE `<target>/.claude/d/manifest.json`, filling **all** fields:
 - `initializedAt` (current timestamp)
 - `lastAnalyzedCommit` = current HEAD sha (`git rev-parse HEAD` in the target repo)
 
-## Step 12 — SUMMARY
+## Step 13 — SUMMARY
 
 Print a clear final summary covering:
 
 - **Docs created** — paths under `docs/architecture/` and `docs/conventions.md`.
 - **Agents generated** — each `.claude/agents/<role>.md`.
+- **Command generated** — `.claude/commands/d/task.md` (the `/d:task` command is now available in this project).
 - **Manifest** — `.claude/d/manifest.json` written.
 - **Gate commands** — the resolved `qualityGate` and `testGate`.
-- **Green-baseline result** — pass, or the recorded gap from Step 10.
-- A note that `/d:task` and `/d:fix` will be added in later plans.
+- **Green-baseline result** — pass, or the recorded gap from Step 11.
+- A note that `/d:task` is now generated and available; `/d:fix` will be added in a later plan.
