@@ -1,0 +1,8 @@
+{
+  "name": "d",
+  "description": "AI project workflow engine: init, iterate (task), and fix bugs with project-tailored subagents",
+  "version": "0.1.0",
+  "author": { "name": "dudu", "email": "frezzaarbry825@gmail.com" },
+  "license": "MIT",
+  "keywords": ["workflow", "subagents", "scaffolding", "project-init"]
+}
