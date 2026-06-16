@@ -29,7 +29,7 @@ From the root cause's layer, route the fix to its owning agent (`d-frontend` and
 
 ## Step 4 — Verify (regression test + gates)
 
-- `d-tester`: add a **regression test** that reproduces the bug — it must FAIL on the pre-fix behavior and PASS after the fix — then run `testGate.test`.
+- `d-tester`: add a **regression test** that reproduces the bug — it must FAIL on the pre-fix behavior and PASS after the fix — then run `testGate.test`. If `testGate.test` is a stub that does not execute real tests (e.g. an `echo`), instruct `d-tester` to wire the regression test into the test command (per its "fix your own broken test scripts" mandate) so the gate genuinely exercises it — otherwise the FAIL-pre-fix / PASS-post-fix guarantee is vacuous.
 - `d-reviewer`: run the quality gate (`qualityGate.lint` + `qualityGate.format` + `qualityGate.typecheck` + any `qualityGate.extra`).
 - Visual gate (ONLY if `d-ui` in roles and the bug is visual): `d-ui` runs the visual diff.
 
