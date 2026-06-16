@@ -29,8 +29,10 @@ install directory at runtime). The files are:
 - `${CLAUDE_PLUGIN_ROOT}/reference/agent-templates/d-pm.md` and one sibling per detected role
   (`reference/agent-templates/d-pm.md`, `d-tester.md`, `d-reviewer.md`, `d-frontend.md`, `d-backend.md`, `d-ui.md`)
 
-If `${CLAUDE_PLUGIN_ROOT}` is somehow unset, fall back to the relative path `reference/<name>.md`
-resolved from the plugin's own command directory, and warn the user that the env var was missing.
+If `${CLAUDE_PLUGIN_ROOT}` is somehow unset, do NOT use a bare relative path (the command runs in the
+**target project's** working directory, so `reference/...` would resolve there and miss). Instead locate
+the installed `d` plugin directory (search under `~/.claude/plugins/` for a path ending in `/d/<version>/`
+that contains `reference/`) and read the files from there; warn the user that the env var was missing.
 
 **TARGET PROJECT** = the directory in `$ARGUMENTS` if provided, else the current working directory.
 All project artifacts (`docs/`, `.claude/agents/`, `.claude/d/`) are written **inside the TARGET project**,

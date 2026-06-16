@@ -16,10 +16,11 @@ authoring work (writing `docs/design.md`) to the `d-ui` subagent.
 
 ## Step 1 — Main Agent Asks: "How is UI handled?"
 
-Present the user with two options:
+Present the user with three options:
 
-1. **External design tool** (Figma, Stitch, or other) — the tool is the source of truth.
-2. **AI decides UI** — the agent generates a design document from user preferences.
+1. **External design tool** (Figma, Stitch, or other) — the tool is the source of truth. → Branch A
+2. **AI decides UI** — the agent generates a design document from user preferences. → Branch B
+3. **No formal design source** — just guard against visual regressions (no design to compare to). → Branch C
 
 ---
 
@@ -121,6 +122,32 @@ prompt from the main agent.
 
 ---
 
+## Branch C — No Formal Design Source (regression-only)
+
+Use this when the project has a UI but no design tool and the user does not want
+an AI-authored design system — the visual gate simply guards against unintended
+visual change by diffing screenshots against a committed baseline.
+
+### 1. No design doc, no MCP
+
+Do **not** generate `docs/design.md` and do **not** require any design MCP.
+
+### 2. Write manifest fields
+
+```jsonc
+{
+  "uiBaseline": {
+    "mode": "regression",
+    "designSource": null,
+    "tool": "<playwright | backstopjs>"   // see Step 3
+  }
+}
+```
+
+The first task run establishes the screenshot baseline; later runs diff against it.
+
+---
+
 ## Step 3 — Record Visual Gate Tool (`uiBaseline.tool`)
 
 Ask the user (or default silently) which visual regression tool to use:
@@ -142,16 +169,20 @@ workflows as a **visual gate**:
   via the appropriate MCP tool and compares it against the implementation.
 - If `designSource` is `docs/design.md`, it loads that file and checks the
   implementation against the written spec.
+- If `mode` is `regression` (`designSource` is `null`), it diffs the current
+  implementation's screenshots against the committed baseline (no design to
+  compare to — only unintended visual change is flagged).
 - Deviations are reported as blocking issues before a task is marked done.
 
 ---
 
 ## Summary of Manifest Keys
 
-| Key | Branch A value | Branch B value |
-|---|---|---|
-| `uiBaseline.mode` | `"design"` | `"design"` (source is the local `docs/design.md`) |
-| `uiBaseline.designSource` | Figma URL / `"stitch"` / other | `"docs/design.md"` |
-| `uiBaseline.tool` | `"playwright"` or `"backstopjs"` | same |
+| Key | Branch A (external) | Branch B (AI decides) | Branch C (regression-only) |
+|---|---|---|---|
+| `uiBaseline.mode` | `"design"` | `"design"` (source is local `docs/design.md`) | `"regression"` |
+| `uiBaseline.designSource` | Figma URL / `"stitch"` / other | `"docs/design.md"` | `null` |
+| `uiBaseline.tool` | `"playwright"` or `"backstopjs"` | same | same |
 
-`docs/design.md` is created **only** in Branch B.
+`docs/design.md` is created **only** in Branch B. (For no-UI projects, `d-ui` is
+absent and this whole reference is skipped — the manifest gets `uiBaseline.mode: "none"`.)
