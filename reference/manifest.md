@@ -9,7 +9,7 @@ The manifest lives at **`.claude/d/manifest.json`** inside the **target project*
 When `/d:init` runs, it checks for the presence of `.claude/d/manifest.json` in the target project:
 
 - **File absent** — first-run mode: full analysis, agent generation, and manifest creation.
-- **File present** — incremental-refresh mode: diff against `lastAnalyzedCommit`, update only what changed. (Incremental-refresh logic is implemented in a later plan.)
+- **File present** — incremental-refresh mode: diff against `lastAnalyzedCommit`, update only what changed (see `reference/incremental-refresh.md`).
 
 ## JSON shape
 

@@ -82,9 +82,10 @@ analysis pipeline. Do the following in order:
    accepted value differs from the reference, trust `--help`.
 3. **Infer the selection and construct the command.** From the user's requirement, infer a complete
    better-t-stack selection using the reference's mapping table (the user should not have to name
-   flags). Construct the non-interactive command:
-   `npx create-better-t-stack@latest . --yes <flags>` (scaffold into the current directory; use
-   `--no-git` so this command owns the initial commit).
+   flags). Construct the non-interactive command by setting **every prompt-bearing flag explicitly** —
+   do **NOT** use `--yes` (it is mutually exclusive with the stack flags on current CLI versions).
+   Validate the command first with `--dry-run` (exits 0 and prints a canonical `reproducibleCommand`).
+   Scaffold into the current directory; use `--no-git` so this command owns the initial commit.
 4. **⏸ CONFIRM THE SCAFFOLD (REQUIRED HUMAN STOP).** Present the full constructed command together with
    a **per-choice rationale** (one line explaining each non-default flag). Ask for exactly **one**
    confirmation, and allow the user to edit any choice in free text ("use sqlite", "switch to bun").

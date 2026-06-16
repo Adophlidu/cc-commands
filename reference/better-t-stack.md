@@ -29,18 +29,21 @@ Read the user's project description and map it to the flag set below using the h
 ### Non-interactive command form
 
 ```bash
-npx create-better-t-stack@latest . --yes <flags>
+npx create-better-t-stack@latest . <every prompt-bearing flag set explicitly>
 ```
 
-Use `.` (current directory) as the target. `--yes` skips all interactive prompts so the scaffold runs unattended.
+Use `.` (current directory) as the target.
 
-> **Runtime verification required.** The exact flag values listed below are authoritative as of the time this doc was written, but `create-better-t-stack` evolves quickly. Before running the command, confirm the current flag set with:
+> **Do NOT use `--yes` together with stack flags.** On current CLI versions `--yes` is **mutually exclusive** with the core stack flags (`--frontend`, `--backend`, `--database`, `--orm`, `--api`, `--auth`, `--examples`, …) and the command errors out: *"Cannot combine --yes with core stack configuration flags."* To run unattended with a chosen stack, **omit `--yes` and specify every prompt-bearing flag explicitly** instead. Any prompt-bearing flag you leave out triggers an interactive prompt.
+
+> **Runtime verification required (do this first).** `create-better-t-stack` evolves quickly. Before running, confirm the current flags AND validate your constructed command non-interactively with:
 >
 > ```bash
-> npx create-better-t-stack@latest --help
+> npx create-better-t-stack@latest --help            # current flag names + accepted values
+> npx create-better-t-stack@latest . <flags> --dry-run   # validates; exits 0 and prints a canonical reproducibleCommand
 > ```
 >
-> If flag names or accepted values differ from what is listed here, use the values reported by `--help`, not the values in this doc.
+> Use the values reported by `--help` over this doc if they differ, and run the exact `reproducibleCommand` that `--dry-run` emits.
 
 ### Flag taxonomy
 
@@ -53,10 +56,17 @@ Use `.` (current directory) as the target. `--yes` skips all interactive prompts
 | `--api <value>` | `none`, `trpc`, `orpc` |
 | `--auth <value>` | `better-auth`, `clerk`, `none` |
 | `--package-manager <value>` | `npm`, `pnpm`, `bun` |
+| `--runtime <value>` | e.g. `bun`, `node`, `workers` — **prompt-bearing**, set it explicitly |
+| `--api <value>` already listed; also `--server-deploy <value>`, `--web-deploy <value>` | deploy targets (or `none`) — prompt-bearing |
+| `--payments <value>` | e.g. `none`, `polar` — prompt-bearing |
+| `--db-setup <value>` | managed-DB setup or `none` — prompt-bearing |
+| `--examples <value>` | e.g. `todo`, `none` |
+| `--addons <value>` | extra add-ons or `none` |
+| `--directory-conflict <value>` | `merge` / `overwrite` / `error` (how to handle non-empty dir) |
 | `--install` / `--no-install` | Install dependencies after scaffold / skip |
 | `--git` / `--no-git` | Init git repo inside scaffold / skip |
 
-Additional flags exist (`--runtime`, `--payments`, `--db-setup`, `--examples`) — check `--help` for current details and defaults.
+To run **fully non-interactively**, every prompt-bearing flag above must be set (otherwise that prompt appears). The frontend `native` option is split into concrete values (`native-bare` / `native-uniwind` / `native-unistyles`) — there is no bare `native`; confirm exact names via `--help`. The authoritative, current list is always `--help`; treat this table as a starting point and let `--dry-run` confirm the full set.
 
 Default package manager: **`pnpm`** unless the user specifies otherwise or a lockfile in the parent environment implies a different choice.
 
@@ -77,7 +87,7 @@ Use this table to translate product descriptions into flag choices. When a descr
 | Bring your own backend (self-hosted) | `--backend self` |
 | Uses Clerk for auth instead of self-hosted | `--auth clerk` |
 | Wants type-safe RPC with oRPC instead of tRPC | `--api orpc` |
-| Needs a native (mobile) frontend | `--frontend native` (check `--help` for current value) |
+| Needs a native (mobile) frontend | `--frontend native-uniwind` (or `native-bare` / `native-unistyles` — check `--help`) |
 
 When the description is ambiguous, prefer the safer/more conventional choice (e.g., `postgres` over `mysql`, `drizzle` over `prisma` for new projects, `pnpm` over `npm`).
 
@@ -90,13 +100,18 @@ Do **not** run the scaffold silently. Present the full command and a one-line ra
 ```
 I'll scaffold this project with:
 
-  npx create-better-t-stack@latest . --yes \
+  npx create-better-t-stack@latest . \
     --frontend tanstack-router \
     --backend hono \
     --database postgres \
     --orm drizzle \
     --api trpc \
     --auth better-auth \
+    --runtime node \
+    --examples todo \
+    --payments none \
+    --db-setup none \
+    --web-deploy none --server-deploy none \
     --package-manager pnpm \
     --install --no-git
 
@@ -124,9 +139,11 @@ Use `--no-git` so that the initial commit is controlled by Step 4 below (not by 
 Once confirmed, run the command exactly as constructed. Stream output so the user can see progress. If the scaffold exits non-zero, report the error and stop — do not proceed to later steps.
 
 ```bash
-npx create-better-t-stack@latest . --yes \
-  <confirmed flags>
+npx create-better-t-stack@latest . \
+  <confirmed flags — every prompt-bearing flag set, NO --yes>
 ```
+
+Tip: run the same command with `--dry-run` first; it validates the flags and prints the canonical `reproducibleCommand`, which you can then run verbatim.
 
 ---
 
