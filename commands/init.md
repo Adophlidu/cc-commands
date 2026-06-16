@@ -44,9 +44,20 @@ never inside the plugin.
 
 Check whether `<target>/.claude/d/manifest.json` exists.
 
-- If it **exists**: print exactly →
-  `d is already initialized for this project; incremental refresh lands in a later plan.`
-  then **STOP**. Do nothing else.
+- If it **exists**: the project is already initialized → run the **incremental-refresh flow**.
+  READ `${CLAUDE_PLUGIN_ROOT}/reference/incremental-refresh.md` and follow it exactly:
+  - **Re-analyze**, scoped by the diff between `manifest.lastAnalyzedCommit` and current HEAD.
+  - **Update docs in place** — refresh `<target>/docs/architecture/` and `<target>/docs/conventions.md`,
+    editing existing files rather than regenerating from scratch.
+  - **Preserve specs and hand-edits** — never touch `<target>/docs/specs/*`, and treat hand-edited
+    agent/command files as authoritative. Use **overwrite-with-ask**: before overwriting any hand-edit,
+    show the diff and offer **keep / replace / merge**.
+  - **Handle stack/role drift** — report any change in detected stack or roles, and offer to generate
+    newly-needed agents/commands.
+  - **Bump `lastAnalyzedCommit`** to current HEAD; leave `initializedAt` and `specCounter` unchanged.
+  - **Report** what was refreshed vs. preserved.
+  Then **STOP** — refresh updates in place; it does **not** re-run the first-time generation pipeline
+  (do not continue to Step 2).
 - If it does **not** exist: continue to Step 2.
 
 ## Step 2 — DETECT NEW vs EXISTING
