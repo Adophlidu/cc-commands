@@ -1,0 +1,8 @@
+{
+  "name": "d-dev",
+  "description": "Development marketplace for the d workflow plugin",
+  "owner": { "name": "dudu", "email": "frezzaarbry825@gmail.com" },
+  "plugins": [
+    { "name": "d", "description": "AI project workflow engine", "version": "0.1.0", "source": "./" }
+  ]
+}

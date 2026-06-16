@@ -1,0 +1,11 @@
+{
+  "name": "sample-fullstack",
+  "private": true,
+  "scripts": {
+    "lint": "echo 'lint ok'",
+    "format": "echo 'format ok'",
+    "typecheck": "echo 'typecheck ok'",
+    "test": "echo 'test ok'",
+    "build": "echo 'build ok'"
+  }
+}
