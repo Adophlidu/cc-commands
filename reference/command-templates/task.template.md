@@ -7,17 +7,24 @@ You are running `/d:task` — the requirement-iteration conductor for **{{PROJEC
 You are the conductor: you dispatch the project's `d-*` subagents via the Task tool and drive the loop.
 Subagents cannot dispatch other subagents — all orchestration is yours.
 
-First, READ `.claude/d/manifest.json` to load: `roles`, `qualityGate`, `testGate`, `uiBaseline`, `stack`, `specCounter`.
+First, READ `.claude/d/manifest.json` to load: `roles`, `qualityGate`, `testGate`, `uiBaseline`, `stack`, `specCounter`, `trunkBranch`.
 The requirement is in `$ARGUMENTS`.
 
-**Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default).
+**Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default). **Never commit on `trunkBranch`** — all work lands via a PR.
+
+## Step 0 — Branch off trunk (never work on the trunk)
+
+Before any edit or commit:
+1. Compute `NNNN` = zero-padded (`specCounter` + 1) and a short kebab-case `<slug>` from the requirement (`$ARGUMENTS`).
+2. Ensure a clean working tree (if there are uncommitted changes, ask the user to stash/commit them first).
+3. Create and switch to the work branch off `trunkBranch`: `git switch -c d/task/NNNN-<slug> <trunkBranch>` (follow the project's own branch convention from `docs/conventions.md` if one was recorded instead of the `d/...` pattern). If you are already on the correct work branch, stay; **if you are on `trunkBranch`, you MUST create the branch now** — never commit to the trunk.
+4. Remember the branch name for Step 10.
 
 ## Step 1 — Decompose (d-pm)
 
-Dispatch the `d-pm` subagent with the requirement. It must:
+Dispatch the `d-pm` subagent with the requirement and the `NNNN-<slug>` chosen in Step 0. It must:
 - read `docs/architecture/overview.md` + `docs/conventions.md`,
-- compute the next spec number `NNNN` = zero-padded (`specCounter` + 1),
-- write `docs/specs/NNNN-<slug>/spec.md` with: sub-task breakdown, acceptance criteria, owning agent per sub-task, and an explicit **API contract** (endpoints / inputs / outputs / errors) when both a frontend and a backend role are involved,
+- write `docs/specs/NNNN-<slug>/spec.md` (same `NNNN-<slug>` as the branch) with: sub-task breakdown, acceptance criteria, owning agent per sub-task, and an explicit **API contract** (endpoints / inputs / outputs / errors) when both a frontend and a backend role are involved,
 - bump `specCounter` to `NNNN` in `.claude/d/manifest.json`.
 
 ## ⏸ Step 2 — SPEC CHECKPOINT (REQUIRED HUMAN STOP)
@@ -61,3 +68,11 @@ When all gates pass: READ `${CLAUDE_PLUGIN_ROOT}/reference/reflow.md` and perfor
 ## Step 9 — Report
 
 Print a final report: the spec path, what each worker changed, the three-gate results, any 3-round escalations, and **which docs were reflowed**. Update the spec's status to done.
+
+## Step 10 — Open a PR into the trunk
+
+The work + reflow commits are on `d/task/NNNN-<slug>`, never on `trunkBranch`. Finish by landing it as a PR:
+- If a git remote and `gh` CLI are available: push the branch and `gh pr create --base <trunkBranch>`, with a Conventional-style title and a body following the PR convention in `docs/conventions.md` (`## Summary / ## Changes / ## Test Plan`, referencing the spec).
+- Else if a remote exists but `gh` does not: push the branch and print the exact "create a PR" URL/instructions for the user.
+- Else (no remote): leave the work on the local branch and tell the user to push + open a PR when ready.
+Report the PR URL (or the branch name + next step) in the final summary.

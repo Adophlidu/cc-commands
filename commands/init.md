@@ -148,6 +148,7 @@ Present a concise summary for the user to review and correct:
 3. **Role roster** — `projectType` and the `roles[]` you detected (Step 6).
 4. **Resolved gate commands** — the exact `qualityGate` and `testGate` strings you verified (Step 5).
 5. **uiBaseline** — from Step 7 (or "n/a — no d-ui role").
+6. **Trunk branch** — ask which branch is the trunk (default `main`; detect the repo's current default if obvious). `/d:task` and `/d:fix` will branch off it and never commit directly to it. Record the answer as `trunkBranch`.
 
 Then ask the user to confirm or correct, using `AskUserQuestion` (or an explicit
 "⏸ Reply to confirm, or tell me what to change." prompt). Apply any corrections before continuing.
@@ -241,6 +242,7 @@ WRITE `<target>/.claude/d/manifest.json`, filling **all** fields:
 - `projectType`, `stack`, `roles`
 - `qualityGate`, `testGate` (the verified command strings from Step 5)
 - `uiBaseline` (from Step 7, or null)
+- `trunkBranch` (from the Step 8 calibration answer; default `main`)
 - `specCounter: 0`
 - `initializedAt` (current timestamp)
 - `lastAnalyzedCommit` = current HEAD sha (`git rev-parse HEAD` in the target repo)
