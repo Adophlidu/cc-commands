@@ -14,9 +14,9 @@ This is **opt-in**. Always ask before writing any permission grant.
 - **Precedence:** `.claude/settings.local.json` (personal, gitignored) > `.claude/settings.json` (committed/shared) > user settings. Deny/ask rules always beat allow.
 
 **Important caveats to tell the user:**
-- `defaultMode` takes effect on the **next session** (not mid-session) — which matches the restart `/d:init` already recommends. `allow` rules reload live.
+- `defaultMode` may not take effect until the **next session** — treat the restart `/d:init` already recommends as the point it applies. (`allow` rules reload live.)
 - Writing `.claude/settings.local.json` is itself a protected-path write that **prompts once** — that is the "approve once" moment.
-- `.git/` and `.claude/` stay protected regardless. We do **not** use `bypassPermissions`/`auto` (Claude Code blocks a repo from self-granting those).
+- `.git/` and `.claude/` stay protected regardless. We do **not** use `bypassPermissions`/`auto` — and a checked-in settings file cannot self-grant `auto` mode (Claude Code blocks that locally; bypass mode is likewise restricted).
 
 ---
 

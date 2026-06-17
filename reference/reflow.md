@@ -55,7 +55,7 @@ The conductor dispatches the appropriate subagent to integrate each candidate th
 
 `d-ui` owns `docs/design.md`. Before dispatching:
 
-1. Read `d.manifest.json` → `uiBaseline.designSource`.
+1. Read `.claude/d/manifest.json` → `uiBaseline.designSource`.
 2. **If `designSource` is `null` or `"docs/design.md"`** (internal baseline): dispatch `d-ui` to integrate the UI learning into `docs/design.md`.
 3. **If `designSource` is an external tool** (Figma URL, Stitch URL, or any `http*` URL): do **not** touch `docs/design.md`. Instead, surface the UI learning in the calling command's final report under **"UI learnings — reflect in [designSource]"** so the user can update the external source manually.
 
