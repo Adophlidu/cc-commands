@@ -81,7 +81,7 @@ Bloat in foundational docs (`docs/architecture/`, `docs/conventions.md`, `docs/d
 
 After `d-pm` and/or `d-ui` finish their edits:
 
-1. The conductor stages and commits the changed doc files with a message of the form:
+1. The conductor stages and commits the changed doc files, following the **Commit & PR Conventions** section of `docs/conventions.md`. By default (Conventional Commits) the message is:
    ```
    docs: reflow after <task-id or fix-id>
    ```
