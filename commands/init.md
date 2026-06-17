@@ -32,6 +32,7 @@ install directory at runtime). The files are:
 - `${CLAUDE_PLUGIN_ROOT}/reference/permissions-setup.md` (permission pre-grant, Step 14)
 - `${CLAUDE_PLUGIN_ROOT}/reference/manifest.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/command-templates/task.template.md` and `fix.template.md` (Steps 10–11)
+- `${CLAUDE_PLUGIN_ROOT}/reference/reflow.md` (its absolute path is baked into the generated /d:task and /d:fix at Steps 10–11)
 - `${CLAUDE_PLUGIN_ROOT}/reference/agent-templates/d-pm.md` and one sibling per detected role
   (`reference/agent-templates/d-pm.md`, `d-tester.md`, `d-reviewer.md`, `d-frontend.md`, `d-backend.md`, `d-ui.md`)
 
@@ -166,7 +167,8 @@ For **each** role in the (now user-confirmed) `roles[]`:
 - WRITE the filled result to `<target>/.claude/agents/<role>.md`.
 
 **Absent-evidence slots:** some slots reference real exemplars that a skeletal project may not have yet
-(e.g. `{{TEST_EXEMPLAR}}`, `{{DATA_EXEMPLAR}}`, `{{SCHEMA_EXEMPLAR}}` when there are no tests / no data layer / no schema).
+(any `{{*_EXEMPLAR}}` slot — e.g. `{{TEST_EXEMPLAR}}`, `{{DATA_EXEMPLAR}}`, `{{SCHEMA_EXEMPLAR}}`,
+`{{HANDLER_EXEMPLAR}}`, `{{COMPONENT_EXEMPLAR}}` — when there are no tests / no data layer / no schema / no handlers / no components yet).
 When the evidence genuinely does not exist, fill the slot with the canonical fallback
 `(none yet — establish the pattern when first added)` rather than inventing a fake path.
 
@@ -239,6 +241,7 @@ Capture the green-baseline result for the manifest and summary.
 READ `${CLAUDE_PLUGIN_ROOT}/reference/manifest.md` and follow its schema exactly.
 WRITE `<target>/.claude/d/manifest.json`, filling **all** fields:
 
+- `version: 1`
 - `projectType`, `stack`, `roles`
 - `qualityGate`, `testGate` (the verified command strings from Step 5)
 - `uiBaseline` (from Step 7, or null)
