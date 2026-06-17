@@ -14,3 +14,4 @@
 - [ ] the generated fix.md references reading .claude/d/manifest.json and an absolute path to the plugin's reference/reflow.md (not a bare ${CLAUDE_PLUGIN_ROOT})
 - [ ] (Phase 4) on an EMPTY dir, /d:init runs the new-project path (see CHECKLIST-newproject.md), not the stub
 - [ ] (Phase 4) on an ALREADY-INITIALIZED project, /d:init runs incremental refresh (see CHECKLIST-refresh.md), not the stub
+- [ ] (Phase 5) docs/conventions.md contains a "Commit & PR Conventions" section (detected, or Conventional Commits by default)

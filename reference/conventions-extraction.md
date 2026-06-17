@@ -42,6 +42,18 @@ If **lint, format, or typecheck config is entirely absent**, author a minimal co
 
 This is required so the `d-reviewer` quality gate has something to run. Record the authored config in `docs/conventions.md` under a clearly marked **"Authored by /d:init"** note.
 
+### Commit & PR conventions
+
+Detect the project's commit/PR convention so every future auto-commit (reflow, fixes, doc updates) is consistent. **Detect-or-default:**
+
+- **Detect** — look for an existing convention, in priority order:
+  - config: `commitlint.config.*`, `.commitlintrc*`, `.czrc`, `.gitmessage`, a husky `commit-msg` hook;
+  - docs: a commit/PR section in `CONTRIBUTING.md` / `CLAUDE.md`;
+  - history: `git log --oneline -50` — if commits already follow a clear shape (e.g. `type(scope): subject`), adopt it.
+- **Default** — if none is found, default to **[Conventional Commits](https://www.conventionalcommits.org/)**: `type(scope): subject`, types `feat | fix | docs | refactor | test | chore | perf | build | ci`.
+
+Record the result in `docs/conventions.md` under a **Commit & PR Conventions** section: the commit format + allowed types, and the PR convention (a Conventional-style title; a body with `## Summary / ## Changes / ## Test Plan`). This is light-touch — do NOT author a commitlint config or git hook; the convention is followed by the agents, not mechanically enforced.
+
 ---
 
 ## Step 2 — Infer Conventions from Code
@@ -116,6 +128,11 @@ Produce a single, scannable file. Target: readable in under 3 minutes. Use the f
 
 ## Formatting & Linting
 <!-- Active tools and key settings (inferred from config files) -->
+
+## Commit & PR Conventions
+<!-- Commit format + allowed types (detected, or Conventional Commits by default);
+     PR title style + body template (Summary / Changes / Test Plan).
+     Every d-* agent that auto-commits MUST follow this section. -->
 
 ## Known Pitfalls
 <!-- Patterns observed in the repo that cause bugs or are being phased out -->

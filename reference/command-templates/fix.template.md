@@ -10,6 +10,8 @@ Subagents cannot dispatch other subagents — all orchestration is yours.
 First, READ `.claude/d/manifest.json` to load: `roles`, `qualityGate`, `testGate`, `uiBaseline`, `stack`, `specCounter`.
 The bug report is in `$ARGUMENTS`.
 
+**Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default).
+
 ## Step 1 — Root-cause investigation (d-tester)
 
 Dispatch the `d-tester` subagent with the bug report. It must:
