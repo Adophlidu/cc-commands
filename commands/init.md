@@ -12,7 +12,9 @@ argument-hint: [path-to-project] (defaults to current directory)
 
 You are running `/d:init` — the keystone initializer for the **d** project-workflow engine.
 Your job: analyze the target project, generate tailored subagents, and write the d manifest.
-Follow the numbered steps **in order**. Do not skip steps. Two steps are HUMAN STOPS — honor them.
+Follow the numbered steps **in order**. Do not skip steps. Some steps are HUMAN STOPS or opt-in prompts
+(the Step 8 calibration checkpoint, the Step 2 new-project scaffold confirm, UI setup, the Step 14
+permission pre-grant) — honor them; do not proceed past a required stop autonomously.
 
 ## Bundled reference files (read these at their step)
 
@@ -25,7 +27,11 @@ install directory at runtime). The files are:
 - `${CLAUDE_PLUGIN_ROOT}/reference/command-extraction.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/detect-roles.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/ui-setup.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/better-t-stack.md` (new-project scaffolding, Step 2)
+- `${CLAUDE_PLUGIN_ROOT}/reference/incremental-refresh.md` (re-run, Step 1)
+- `${CLAUDE_PLUGIN_ROOT}/reference/permissions-setup.md` (permission pre-grant, Step 14)
 - `${CLAUDE_PLUGIN_ROOT}/reference/manifest.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/command-templates/task.template.md` and `fix.template.md` (Steps 10–11)
 - `${CLAUDE_PLUGIN_ROOT}/reference/agent-templates/d-pm.md` and one sibling per detected role
   (`reference/agent-templates/d-pm.md`, `d-tester.md`, `d-reviewer.md`, `d-frontend.md`, `d-backend.md`, `d-ui.md`)
 
@@ -64,7 +70,7 @@ Check whether `<target>/.claude/d/manifest.json` exists.
 
 List the target directory's contents. If the directory is empty, or contains **only** trivial files
 (`.git`, `README*`, `LICENSE*`, `.gitignore` — in any combination), treat it as a NEW project and run
-the **new-project scaffolding flow** below. Otherwise it is an EXISTING project → run Steps 3–14 below.
+the **new-project scaffolding flow** below. Otherwise it is an EXISTING project → run Steps 3–15 below.
 
 ### NEW project → scaffold, then fall through
 
@@ -97,7 +103,7 @@ analysis pipeline. Do the following in order:
    against: `git init` (use `git init -b main` if the directory is not already a repo) if needed, then
    `git add -A && git commit -m "chore: scaffold project with create-better-t-stack"`. Do not push.
 7. **Fall through into the existing-project pipeline.** With the scaffold committed, treat the freshly
-   scaffolded code as an existing project and **continue into Steps 3–14 below — do NOT stop.**
+   scaffolded code as an existing project and **continue into Steps 3–15 below — do NOT stop.**
 
 ## Step 3 — ANALYZE ARCHITECTURE
 
@@ -239,7 +245,14 @@ WRITE `<target>/.claude/d/manifest.json`, filling **all** fields:
 - `initializedAt` (current timestamp)
 - `lastAnalyzedCommit` = current HEAD sha (`git rev-parse HEAD` in the target repo)
 
-## Step 14 — SUMMARY
+## Step 14 — OFFER PERMISSION PRE-GRANT (opt-in)
+
+READ `${CLAUDE_PLUGIN_ROOT}/reference/permissions-setup.md` and follow it. **Ask the user first**; only
+if they accept, write an `acceptEdits` + gate/git allow block into `<target>/.claude/settings.local.json`
+(merging, not clobbering) so future `/d:task` / `/d:fix` runs don't prompt on every edit. If they decline,
+skip. Note that it applies after a session restart.
+
+## Step 15 — SUMMARY
 
 Print a clear final summary covering:
 
@@ -250,4 +263,5 @@ Print a clear final summary covering:
 - **Manifest** — `.claude/d/manifest.json` written.
 - **Gate commands** — the resolved `qualityGate` and `testGate`.
 - **Green-baseline result** — pass, or the recorded gap from Step 12.
+- **Permissions** — whether a pre-grant was written to `.claude/settings.local.json` (and that it applies next session), or skipped.
 - A note that `/d:task` and `/d:fix` are now generated and available in this project.

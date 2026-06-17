@@ -15,3 +15,4 @@
 - [ ] (Phase 4) on an EMPTY dir, /d:init runs the new-project path (see CHECKLIST-newproject.md), not the stub
 - [ ] (Phase 4) on an ALREADY-INITIALIZED project, /d:init runs incremental refresh (see CHECKLIST-refresh.md), not the stub
 - [ ] (Phase 5) docs/conventions.md contains a "Commit & PR Conventions" section (detected, or Conventional Commits by default)
+- [ ] (Phase 6) /d:init OFFERS a permission pre-grant; on accept, .claude/settings.local.json gets permissions.defaultMode=acceptEdits + an allow list of the gate/git commands (valid JSON, merged not clobbered); on decline, nothing is written
