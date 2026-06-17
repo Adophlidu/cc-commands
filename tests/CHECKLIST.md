@@ -16,3 +16,4 @@
 - [ ] (Phase 4) on an ALREADY-INITIALIZED project, /d:init runs incremental refresh (see CHECKLIST-refresh.md), not the stub
 - [ ] (Phase 5) docs/conventions.md contains a "Commit & PR Conventions" section (detected, or Conventional Commits by default)
 - [ ] (Phase 6) /d:init OFFERS a permission pre-grant; on accept, .claude/settings.local.json gets permissions.defaultMode=acceptEdits + an allow list of the gate/git commands (valid JSON, merged not clobbered); on decline, nothing is written
+- [ ] (Phase 7) /d:init asks for the trunk branch (default main) at calibration and records manifest.trunkBranch; conventions.md "Commit & PR Conventions" notes the never-commit-to-trunk + branch-naming discipline

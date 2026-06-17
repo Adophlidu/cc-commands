@@ -7,10 +7,14 @@ You are running `/d:fix` — the bug-fix conductor for **{{PROJECT_NAME}}**.
 You are the conductor: you dispatch the project's `d-*` subagents via the Task tool and drive the loop.
 Subagents cannot dispatch other subagents — all orchestration is yours.
 
-First, READ `.claude/d/manifest.json` to load: `roles`, `qualityGate`, `testGate`, `uiBaseline`, `stack`, `specCounter`.
+First, READ `.claude/d/manifest.json` to load: `roles`, `qualityGate`, `testGate`, `uiBaseline`, `stack`, `specCounter`, `trunkBranch`.
 The bug report is in `$ARGUMENTS`.
 
-**Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default).
+**Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default). **Never commit on `trunkBranch`** — all work lands via a PR.
+
+## Step 0 — Branch off trunk (never work on the trunk)
+
+Before any edit or commit: compute a short kebab-case `<slug>` from the bug report; ensure a clean working tree (ask the user to stash/commit any pending changes first); then create and switch to the work branch off `trunkBranch`: `git switch -c d/fix/<slug> <trunkBranch>` (follow the project's own branch convention from `docs/conventions.md` if one was recorded). **If you are on `trunkBranch`, you MUST create the branch now** — never commit to the trunk. Remember the branch name for Step 8.
 
 ## Step 1 — Root-cause investigation (d-tester)
 
@@ -48,3 +52,11 @@ When all gates pass: READ `${CLAUDE_PLUGIN_ROOT}/reference/reflow.md` and perfor
 ## Step 7 — Record + report
 
 Record a lightweight note to `docs/specs/NNNN-fix-<slug>/` (NNNN = zero-padded `specCounter` + 1; bump `specCounter` in the manifest) capturing the bug, root cause, and fix. Then print a final report: the root cause, the fix, the regression test, the gate results, any 3-round escalation, and **which docs were reflowed**.
+
+## Step 8 — Open a PR into the trunk
+
+The fix + regression test + reflow commits are on `d/fix/<slug>`, never on `trunkBranch`. Finish by landing it as a PR:
+- If a git remote and `gh` CLI are available: push the branch and `gh pr create --base <trunkBranch>`, with a Conventional-style title (e.g. `fix: ...`) and a body following the PR convention in `docs/conventions.md` (`## Summary / ## Changes / ## Test Plan`, including the root cause and the regression test).
+- Else if a remote exists but `gh` does not: push the branch and print the exact "create a PR" URL/instructions.
+- Else (no remote): leave the work on the local branch and tell the user to push + open a PR when ready.
+Report the PR URL (or the branch name + next step) in the final summary.

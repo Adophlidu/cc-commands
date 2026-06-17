@@ -54,6 +54,11 @@ Detect the project's commit/PR convention so every future auto-commit (reflow, f
 
 Record the result in `docs/conventions.md` under a **Commit & PR Conventions** section: the commit format + allowed types, and the PR convention (a Conventional-style title; a body with `## Summary / ## Changes / ## Test Plan`). This is light-touch — do NOT author a commitlint config or git hook; the convention is followed by the agents, not mechanically enforced.
 
+**Branch discipline (record this too):**
+- **Trunk** is `manifest.trunkBranch` (asked at `/d:init`, default `main`). **Never commit directly to the trunk** — all changes land via a PR.
+- Each `/d:task` works on a branch `d/task/<NNNN-slug>` (the spec number + slug); each `/d:fix` works on `d/fix/<slug>`. Detect an existing project branch convention first (e.g. `feature/*`, a Jira-ID prefix) and follow it if present; otherwise use the `d/...` pattern.
+- A run finishes by opening a PR into the trunk (or pushing + printing PR instructions when a PR can't be created).
+
 ---
 
 ## Step 2 — Infer Conventions from Code
@@ -132,6 +137,8 @@ Produce a single, scannable file. Target: readable in under 3 minutes. Use the f
 ## Commit & PR Conventions
 <!-- Commit format + allowed types (detected, or Conventional Commits by default);
      PR title style + body template (Summary / Changes / Test Plan).
+     Branch discipline: trunk = <trunkBranch>; NEVER commit directly to trunk;
+     /d:task → branch d/task/<NNNN-slug>, /d:fix → branch d/fix/<slug>; finish via PR.
      Every d-* agent that auto-commits MUST follow this section. -->
 
 ## Known Pitfalls
