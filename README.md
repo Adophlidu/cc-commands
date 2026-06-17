@@ -1,6 +1,6 @@
 # `d` — AI Project Workflow Engine
 
-A Claude Code plugin that turns a single command into a complete, project-tailored development workflow. Run `/d:init` in any project and `d` analyzes it (or scaffolds a new one), writes living architecture/convention docs, generates a team of specialized subagents bound to *your* codebase, and gives you two project-local commands — `/d:task` to ship a requirement and `/d:fix` to kill a bug — each guarded by **three script-based quality gates** and a **knowledge-reflow** step that keeps the docs fresh but lean.
+A Claude Code plugin that turns a single command into a complete, project-tailored development workflow. Run `/d:init` in any project and `d` analyzes it (or scaffolds a new one), writes living architecture/convention docs, generates a team of specialized subagents bound to *your* codebase, and gives you two project-local commands — `/d:task` to ship a requirement and `/d:fix` to kill a bug. Each one works **on its own branch**, passes **three script-based quality gates**, **reflows** what it learned back into the docs, and **opens a pull request** — never committing to your trunk.
 
 > **The core idea:** the framework is generic, but every artifact it generates is *fit to your project* — produced by real analysis + a calibration checkpoint + a green-baseline self-test, not by stamping out templates.
 
@@ -71,20 +71,22 @@ flowchart TD
         a3["extract & RUN gate commands<br/>(lint · format · typecheck · test · build)"]
         a4["detect roles → projectType"]
         a5["UI setup (if d-ui): Figma / AI-design / regression"]
-        a6["⏸ **calibration checkpoint** (human review)"]
+        a6["⏸ **calibration checkpoint** (human review<br/>+ pick trunk branch, default main)"]
         a7["generate tailored subagents → .claude/agents/"]
         a8["generate /d:task + /d:fix → .claude/commands/d/"]
         a9["🟢 green-baseline self-test (gates pass on HEAD)"]
         a10["write .claude/d/manifest.json"]
-        a1 --> a2 --> a3 --> a4 --> a5 --> a6 --> a7 --> a8 --> a9 --> a10
+        a11["offer permission pre-grant (opt-in)<br/>→ .claude/settings.local.json"]
+        a1 --> a2 --> a3 --> a4 --> a5 --> a6 --> a7 --> a8 --> a9 --> a10 --> a11
     end
     pipeline --> done(["ready: /d:task · /d:fix"])
 ```
 
-**Two things make the output fit your project, not generic:**
+**Three things make the output fit your project, not generic:**
 
-- ⏸ **Calibration checkpoint** — before generating anything, `d` shows you the extracted architecture, conventions, role roster, and the resolved gate commands so you can correct them.
+- ⏸ **Calibration checkpoint** — before generating anything, `d` shows you the extracted architecture, conventions, role roster, resolved gate commands, and the trunk branch (default `main`) so you can correct them.
 - 🟢 **Green-baseline self-test** — after generating, it runs the quality + test gates against your current `HEAD`. If a gate fails on clean code, the gate config is wrong and gets fixed before finishing.
+- 🔓 **Optional permission pre-grant** — `d` offers to write an `acceptEdits` + gate/git allow-list to `.claude/settings.local.json` so you approve **once** and aren't prompted on every edit afterward (risky commands like `git push` still prompt).
 
 ---
 
@@ -107,11 +109,12 @@ Each worker has the project's conventions and real exemplar file paths inlined i
 
 ## `/d:task` — iterate a requirement
 
-The main agent acts as conductor (subagents can't dispatch subagents). One human checkpoint after the spec; then it runs automatically through the three gates with a bounded reject loop.
+The main agent acts as conductor (subagents can't dispatch subagents). It branches off the trunk first, runs one human checkpoint after the spec, drives the three gates with a bounded reject loop, then opens a PR.
 
 ```mermaid
 flowchart TD
-    t0(["/d:task '...'"]) --> t1["d-pm: decompose →<br/>docs/specs/NNNN-slug/spec.md<br/>+ API contract"]
+    t0(["/d:task '...'"]) --> tb["🌿 branch off trunk<br/>d/task/NNNN-slug<br/>(never commit to trunk)"]
+    tb --> t1["d-pm: decompose →<br/>docs/specs/NNNN-slug/spec.md<br/>+ API contract"]
     t1 --> t2["⏸ **spec checkpoint** (you approve)"]
     t2 --> t3["d-tester + d-ui:<br/>generate acceptance scripts"]
     t3 --> t4{"d-pm: coverage<br/>sufficient?"}
@@ -131,7 +134,8 @@ flowchart TD
     t7 --> gates
     t6 -->|"fail × 3"| esc(["⏸ escalate to you"])
     t6 -->|yes| t8["reflow durable learnings → docs"]
-    t8 --> t9(["report + spec marked done"])
+    t8 --> t9["report + spec marked done"]
+    t9 --> t10(["🔀 open PR into trunk<br/>(or push + instructions)"])
 ```
 
 ---
@@ -142,7 +146,8 @@ Symmetric to `/d:task`, but **root-cause first**: no fix is written until the di
 
 ```mermaid
 flowchart TD
-    f0(["/d:fix '...'"]) --> f1["d-tester: reproduce +<br/>find root cause<br/>(no fix without root cause)"]
+    f0(["/d:fix '...'"]) --> fb["🌿 branch off trunk<br/>d/fix/slug<br/>(never commit to trunk)"]
+    fb --> f1["d-tester: reproduce +<br/>find root cause<br/>(no fix without root cause)"]
     f1 --> f2["⏸ **diagnosis checkpoint** (you confirm)"]
     f2 --> f3["route fix to owner<br/>(d-frontend / d-backend)"]
     f3 --> f4["d-tester: regression test<br/>(fails pre-fix, passes post-fix)"]
@@ -159,7 +164,8 @@ flowchart TD
     f6 --> fg
     f5 -->|"fail × 3"| fesc(["⏸ escalate to you"])
     f5 -->|yes| f7["reflow (root cause is a prime candidate)"]
-    f7 --> f8(["record → docs/specs/NNNN-fix-slug/ + report"])
+    f7 --> f8["record → docs/specs/NNNN-fix-slug/ + report"]
+    f8 --> f9(["🔀 open PR into trunk<br/>(or push + instructions)"])
 ```
 
 ---
@@ -182,6 +188,17 @@ flowchart LR
 
 ---
 
+## Git workflow & conventions
+
+`d` keeps history consistent so iteration N looks like iteration 1.
+
+- **Branch-per-change, PR to land.** `/d:task` and `/d:fix` create a work branch off the trunk (`d/task/<NNNN-slug>`, `d/fix/<slug>`) and **never commit to the trunk** — every change lands via a pull request. The trunk is asked once at `/d:init` (default `main`, stored in the manifest).
+- **Conventional Commits by default.** `/d:init` detects an existing commit convention (commitlint config / `CONTRIBUTING` / git history) or defaults to [Conventional Commits](https://www.conventionalcommits.org/), records it in `docs/conventions.md`, and every agent follows it when it commits.
+- **PR template.** PR titles are Conventional-style; bodies follow `## Summary / ## Changes / ## Test Plan`.
+- **Finish gracefully anywhere.** With a remote + `gh`, the run opens the PR for you; with a remote but no `gh`, it pushes and prints the PR link; with no remote, it leaves the work on the branch and tells you the next step.
+
+---
+
 ## What a managed project looks like
 
 ```
@@ -196,7 +213,8 @@ your-project/
 └── .claude/
     ├── agents/              # d-pm, d-tester, d-reviewer, d-frontend, d-backend, d-ui
     ├── commands/d/          # task.md, fix.md  (→ /d:task, /d:fix)
-    └── d/manifest.json      # project type, stack, roles, gate commands, ui baseline
+    ├── settings.local.json  # optional permission pre-grant (gitignored)
+    └── d/manifest.json      # project type, stack, roles, gate commands, ui baseline, trunk branch
 ```
 
 ---
@@ -206,6 +224,8 @@ your-project/
 - **Fit beats templates** — generic engine, project-specific output via analysis + calibration + green-baseline.
 - **Gates are mechanical** — quality/test/visual verdicts come from script exit status, never vibes.
 - **One human stop per command** — spec (task) / diagnosis (fix) checkpoints; everything else is automatic, with a 3-round reject cap before escalation.
+- **PR-based by default** — work happens on a branch and lands via a PR; the trunk is never committed to directly.
+- **Approve once** — opt-in permission pre-grant means you're not re-prompted on every edit.
 - **Self-contained, opportunistically smart** — works standalone; uses installed skills (e.g. `systematic-debugging`, `design-review`) when present.
 - **Docs are living and lean** — reflow edits in place; history lives in git.
 
@@ -219,6 +239,9 @@ your-project/
 | 2 | `/d:task` iteration | ✅ |
 | 3 | `/d:fix` bug-fix | ✅ |
 | 4 | New project (better-t-stack) + incremental refresh | ✅ |
+| 5 | Commit & PR conventions recorded + followed | ✅ |
+| 6 | Opt-in permission pre-grant | ✅ |
+| 7 | Branch discipline (never commit to trunk, PR to land) | ✅ |
 
 The full design spec and per-phase implementation plans live in [`docs/superpowers/`](docs/superpowers/).
 
