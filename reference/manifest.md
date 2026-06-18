@@ -44,7 +44,8 @@ When `/d:init` runs, it checks for the presence of `.claude/d/manifest.json` in 
     "designSource": "<figma url | path | docs/design.md | null>",
     "tool": "playwright | backstopjs | null"
   },
-  "specCounter": 0
+  "specCounter": 0,
+  "statusLine": { "installed": false, "scope": "global", "wrapped": false }
 }
 ```
 
@@ -63,3 +64,4 @@ When `/d:init` runs, it checks for the presence of `.claude/d/manifest.json` in 
 | `testGate` | object | Verified commands for running tests and building the project. `null` if absent. |
 | `uiBaseline` | object | Controls how `d-ui` runs its visual gate. `mode: "design"` diffs against a design source; `mode: "regression"` diffs screenshots against a prior baseline; `mode: "none"` disables visual checks (no-UI projects). `designSource` is a Figma URL, a local path, or `null`. `tool` is the visual-testing driver in use. |
 | `specCounter` | number | Auto-incrementing integer, starts at `0`. The next spec uses `specCounter + 1` (pre-increment), yielding zero-padded spec directories like `docs/specs/0001-auth-flow/spec.md`. The counter is bumped and persisted when the spec is created (Phase 2 owns spec creation). |
+| `statusLine` | object | Whether the opt-in status-line progress display was installed (`/d:init` Step 14.5). `installed` becomes true once the global wrapper is set up; `scope` is `global`; `wrapped` is true if a prior status line was preserved by wrapping. Absent/`{installed:false}` means no status-line integration. |

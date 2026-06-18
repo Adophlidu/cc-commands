@@ -107,6 +107,22 @@ Do not silently update `manifest.projectType` or `manifest.roles` without user c
 
 ---
 
+## Step 6.5 — Status line (if installed)
+
+Read `manifest.statusLine`.
+
+- If `installed` is true: do **not** re-offer setup. Verify the global `~/.claude/settings.json`
+  `statusLine.command` still references `statusline.sh` (the sentinel). If the user has since replaced
+  it with a different status line, offer to **re-wrap** the new one — but apply the same
+  **anti-recursion guard**: never save a command that already references `statusline.sh` as the base
+  (see `reference/statusline-setup.md` Step 3). On accept, save the new prior command to
+  `~/.claude/d/base-statusline.json` and restore `statusLine.command` to `bash ~/.claude/d/statusline.sh`.
+- If `installed` is false: you may offer setup **once** (read `${CLAUDE_PLUGIN_ROOT}/reference/statusline-setup.md`).
+
+This is a small opt-in touch-up; it does not count as re-running first-time generation.
+
+---
+
 ## Step 7 — Update Manifest
 
 After all edits are complete, update `.claude/d/manifest.json`:

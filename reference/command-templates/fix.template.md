@@ -12,6 +12,23 @@ The bug report is in `$ARGUMENTS`.
 
 **Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default). **Never commit on `trunkBranch`** — all work lands via a PR.
 
+## Progress display (status line)
+
+This project may have the d status line installed. At the start of each step below, surface progress
+(best-effort; a silent no-op if not installed):
+
+```bash
+[ -x "$HOME/.claude/d/d-status.sh" ] && "$HOME/.claude/d/d-status.sh" set fix <step> 6 "<label>" "<slug>" || true
+```
+
+Node map: `1/6 branch · 2/6 root-cause · 3/6 fix · 4/6 regression · 5/6 gates · 6/6 PR`. Use the
+`<slug>` chosen in Step 0. The reject loop does **not** advance the node — stay on `5/6 gates` across
+retries. After the PR is opened (Step 8), clear it:
+
+```bash
+[ -x "$HOME/.claude/d/d-status.sh" ] && "$HOME/.claude/d/d-status.sh" clear || true
+```
+
 ## Step 0 — Branch off trunk (never work on the trunk)
 
 Before any edit or commit: compute a short kebab-case `<slug>` from the bug report; ensure a clean working tree (ask the user to stash/commit any pending changes first); then create and switch to the work branch off `trunkBranch`: `git switch -c d/fix/<slug> <trunkBranch>` (follow the project's own branch convention from `docs/conventions.md` if one was recorded). **If you are on `trunkBranch`, you MUST create the branch now** — never commit to the trunk. Remember the branch name for Step 8.

@@ -188,6 +188,23 @@ flowchart LR
 
 ---
 
+## Live progress in the status line (opt-in)
+
+Every `d` flow is a sequence of phase-level nodes; with the optional status-line integration, the
+current node shows in your Claude Code status bar:
+
+```
+myproject | Opus | ctx:42% | 🔵 d:task ▸ implement (4/6)
+```
+
+`/d:init` offers this as a one-time, opt-in step. It **wraps** any status line you already have
+(your existing bar is preserved), installs a renderer to `~/.claude/d/`, and lights up only in
+`d`-managed projects — every other project renders exactly as before. Each flow writes its current
+node to an ephemeral, gitignored `.claude/d/status.json` and clears it when the PR opens; a 6-hour
+staleness backstop hides a node left behind by an interrupted run.
+
+---
+
 ## Git workflow & conventions
 
 `d` keeps history consistent so iteration N looks like iteration 1.
@@ -242,6 +259,7 @@ your-project/
 | 5 | Commit & PR conventions recorded + followed | ✅ |
 | 6 | Opt-in permission pre-grant | ✅ |
 | 7 | Branch discipline (never commit to trunk, PR to land) | ✅ |
+| 8 | Status-line workflow progress (opt-in) | ✅ |
 
 The full design spec and per-phase implementation plans live in [`docs/superpowers/`](docs/superpowers/).
 
