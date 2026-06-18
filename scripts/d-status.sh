@@ -24,6 +24,7 @@ case "${1:-}" in
     slug="${6:-}"
     mkdir -p "$STATE_DIR"
     tmp="$(mktemp "$STATE_DIR/.status.XXXXXX")"
+    trap 'rm -f "$tmp"' EXIT
     jq -n \
       --arg command "$command" --arg label "$label" \
       --argjson step "$step" --argjson total "$total" \

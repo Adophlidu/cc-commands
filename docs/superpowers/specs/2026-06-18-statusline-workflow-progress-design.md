@@ -42,6 +42,8 @@ Labels are short, phase-level. Transient/closing steps (spec checkpoint, reflow)
 - New-project prefix: `❓ requirement → 🏗 scaffold`
 - Existing-project mainline: `🔬 analyze → 📐 conventions → 🚦 run-gates → 🎭 roles → 🎨 ui → ⏸ calibrate → 🤖 agents → ⚙ commands → 🟢 self-test → ✅ ready`
 
+(Implemented as 8 phase-level nodes — `agents`+`commands` fold into one `generate` node and `ready` folds into the terminal clear; see the plan's node maps.)
+
 Rendered suffix format: ` | 🔵 d:<command> ▸ <label> (<step>/<total>)`. The `slug` (when present, e.g. a task spec id) is appended in parentheses after the label when it fits: `🔵 d:task ▸ implement (4/6) · 0007-add-auth`.
 
 ---

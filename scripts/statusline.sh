@@ -12,6 +12,7 @@ input="$(cat)"
 base=""
 if [ -f "$BASE_CFG" ]; then
   base_cmd="$(jq -r '.command // empty' "$BASE_CFG" 2>/dev/null || true)"
+  case "$base_cmd" in *statusline.sh*) base_cmd="";; esac   # anti-recursion: never run ourselves as base
   [ -n "$base_cmd" ] && base="$(printf '%s' "$input" | bash -c "$base_cmd" 2>/dev/null || true)"
 fi
 if [ -z "$base" ]; then
@@ -28,6 +29,7 @@ state="$cwd/.claude/d/status.json"
 suffix=""
 if [ -n "$cwd" ] && [ -f "$state" ]; then
   updated="$(jq -r '.updated // 0' "$state" 2>/dev/null || echo 0)"
+  case "$updated" in *[!0-9]*) updated=0;; esac
   now="$(date +%s)"
   if [ "$updated" -gt 0 ] && [ $((now - updated)) -lt "$TTL" ]; then
     c="$(jq -r '.command // empty' "$state")"; l="$(jq -r '.label // empty' "$state")"

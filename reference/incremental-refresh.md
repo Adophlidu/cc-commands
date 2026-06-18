@@ -109,7 +109,7 @@ Do not silently update `manifest.projectType` or `manifest.roles` without user c
 
 ## Step 6.5 — Status line (if installed)
 
-Read `manifest.statusLine`. 
+Read `manifest.statusLine`.
 
 - If `installed` is true: do **not** re-offer setup. Verify the global `~/.claude/settings.json`
   `statusLine.command` still references `statusline.sh` (the sentinel). If the user has since replaced
