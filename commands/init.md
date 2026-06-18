@@ -14,7 +14,8 @@ You are running `/d:init` — the keystone initializer for the **d** project-wor
 Your job: analyze the target project, generate tailored subagents, and write the d manifest.
 Follow the numbered steps **in order**. Do not skip steps. Some steps are HUMAN STOPS or opt-in prompts
 (the Step 8 calibration checkpoint, the Step 2 new-project scaffold confirm, UI setup, the Step 14
-permission pre-grant) — honor them; do not proceed past a required stop autonomously.
+permission pre-grant, the Step 14.5 status-line setup) — honor them; do not proceed past a required
+stop autonomously.
 
 ## Bundled reference files (read these at their step)
 
@@ -30,6 +31,7 @@ install directory at runtime). The files are:
 - `${CLAUDE_PLUGIN_ROOT}/reference/better-t-stack.md` (new-project scaffolding, Step 2)
 - `${CLAUDE_PLUGIN_ROOT}/reference/incremental-refresh.md` (re-run, Step 1)
 - `${CLAUDE_PLUGIN_ROOT}/reference/permissions-setup.md` (permission pre-grant, Step 14)
+- `${CLAUDE_PLUGIN_ROOT}/reference/statusline-setup.md` (status-line setup, Step 14.5)
 - `${CLAUDE_PLUGIN_ROOT}/reference/manifest.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/command-templates/task.template.md` and `fix.template.md` (Steps 10–11)
 - `${CLAUDE_PLUGIN_ROOT}/reference/reflow.md` (its absolute path is baked into the generated /d:task and /d:fix at Steps 10–11)
@@ -44,6 +46,32 @@ that contains `reference/`) and read the files from there; warn the user that th
 **TARGET PROJECT** = the directory in `$ARGUMENTS` if provided, else the current working directory.
 All project artifacts (`docs/`, `.claude/agents/`, `.claude/d/`) are written **inside the TARGET project**,
 never inside the plugin.
+
+---
+
+## Progress display (status line) — punch at each step
+
+If the status-line feature is installed, surface progress in the bar. Before each major step below,
+run this best-effort punch (a silent no-op when the script is absent):
+
+```bash
+[ -x "${CLAUDE_PLUGIN_ROOT}/scripts/d-status.sh" ] && "${CLAUDE_PLUGIN_ROOT}/scripts/d-status.sh" set init <step> <total> "<label>" || true
+```
+
+Node map (existing-project pipeline, `<total>` = 8):
+`1/8 analyze · 2/8 conventions · 3/8 run-gates · 4/8 roles · 5/8 ui · 6/8 calibrate · 7/8 generate · 8/8 self-test`
+
+For a NEW project, prepend two nodes and use `<total>` = 10:
+`1/10 requirement · 2/10 scaffold`, then the eight above as `3/10 … 10/10`.
+
+At the very end (after the Step 15 summary), clear the indicator:
+
+```bash
+[ -x "${CLAUDE_PLUGIN_ROOT}/scripts/d-status.sh" ] && "${CLAUDE_PLUGIN_ROOT}/scripts/d-status.sh" clear || true
+```
+
+Note: on a project's **first-ever** `/d:init`, the wrapper is not installed until Step 14.5, so the
+first run shows nothing in the bar; every subsequent `d` command (and future inits) displays normally.
 
 ---
 
@@ -249,6 +277,7 @@ WRITE `<target>/.claude/d/manifest.json`, filling **all** fields:
 - `specCounter: 0`
 - `initializedAt` (current timestamp)
 - `lastAnalyzedCommit` = current HEAD sha (`git rev-parse HEAD` in the target repo)
+- `statusLine: { "installed": false }` (Step 14.5 updates this if the user opts in)
 
 ## Step 14 — OFFER PERMISSION PRE-GRANT (opt-in)
 
@@ -256,6 +285,14 @@ READ `${CLAUDE_PLUGIN_ROOT}/reference/permissions-setup.md` and follow it. **Ask
 if they accept, write an `acceptEdits` + gate/git allow block into `<target>/.claude/settings.local.json`
 (merging, not clobbering) so future `/d:task` / `/d:fix` runs don't prompt on every edit. If they decline,
 skip. Note that it applies after a session restart.
+
+## Step 14.5 — OFFER STATUS-LINE SETUP (opt-in)
+
+READ `${CLAUDE_PLUGIN_ROOT}/reference/statusline-setup.md` and follow it. **Ask the user first**; only
+if they accept, install the renderer to `~/.claude/d/`, preserve any existing status line by wrapping
+it, point the global `statusLine` at the wrapper, and set `manifest.statusLine.installed = true`. If
+they decline, set `manifest.statusLine = { "installed": false }` and skip. This shows the live `d`
+workflow node in the status bar during `/d:task` and `/d:fix`.
 
 ## Step 15 — SUMMARY
 
@@ -269,4 +306,11 @@ Print a clear final summary covering:
 - **Gate commands** — the resolved `qualityGate` and `testGate`.
 - **Green-baseline result** — pass, or the recorded gap from Step 12.
 - **Permissions** — whether a pre-grant was written to `.claude/settings.local.json` (and that it applies next session), or skipped.
+- **Status line** — whether the progress display was installed (and that other projects are unaffected), or skipped.
 - A note that `/d:task` and `/d:fix` are now generated and available in this project.
+
+After printing the summary, clear the status-line indicator (best-effort):
+
+```bash
+[ -x "${CLAUDE_PLUGIN_ROOT}/scripts/d-status.sh" ] && "${CLAUDE_PLUGIN_ROOT}/scripts/d-status.sh" clear || true
+```
