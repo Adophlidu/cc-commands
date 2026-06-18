@@ -12,6 +12,23 @@ The requirement is in `$ARGUMENTS`.
 
 **Every git commit you (or the agents) make in this run follows the "Commit & PR Conventions" section of `docs/conventions.md`** (Conventional Commits by default). **Never commit on `trunkBranch`** — all work lands via a PR.
 
+## Progress display (status line)
+
+This project may have the d status line installed. At the start of each step below, surface progress
+(best-effort; a silent no-op if not installed):
+
+```bash
+[ -x "$HOME/.claude/d/d-status.sh" ] && "$HOME/.claude/d/d-status.sh" set task <step> 6 "<label>" "NNNN-<slug>" || true
+```
+
+Node map: `1/6 branch · 2/6 spec · 3/6 acceptance · 4/6 implement · 5/6 gates · 6/6 PR`. Use the
+`NNNN-<slug>` chosen in Step 0. The reject loop does **not** advance the node — stay on `5/6 gates`
+across retries. After the PR is opened (Step 10), clear it:
+
+```bash
+[ -x "$HOME/.claude/d/d-status.sh" ] && "$HOME/.claude/d/d-status.sh" clear || true
+```
+
 ## Step 0 — Branch off trunk (never work on the trunk)
 
 Before any edit or commit:
